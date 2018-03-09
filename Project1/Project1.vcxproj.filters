@@ -18,5 +18,17 @@
     <ClCompile Include="problem0.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="problem1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="problem2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="problem3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="problem4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
