@@ -1,6 +1,6 @@
 //This will be the source code for problem 4...
 
 #include <stdio.h>
-void main() {
+int main() {
 	printf("Hello, World!\n");
 }
