@@ -245,20 +245,22 @@ void programC(){
         for(i = 0; i < size; i++){
             sum += arrNum[i];
         }
-        printf("Hi I am Process 2 and my pid is %d. My Parent's pid is %d\n",getpid(),getppid());
+        printf("Process 2:pid is %d. Parent is 1: pid is %d\n",getpid(),getppid());
         //printf("sum=%d\n", sum);
         write(fd1[1], &sum, sizeof(sum));
         close(fd1[1]);
         exit(0);
     }
     else{
+        printf("Process 1:pid is %d. I am the Parent.\n", getpid());
         close(fd1[1]);
         read(fd1[0], &sum, sizeof(sum));
         int status;
         waitpid(pid2, &status, 0);
         close(fd1[0]);
+
     }
-  //  printf("Hi I am Process 1 and my pid is %d. I am the Parent.\n", getpid());
+
     
     pid_t pid3 = fork();
     if (pid3 == 0){
@@ -269,11 +271,11 @@ void programC(){
             max = arrNum[1];
             min = arrNum[0];
         }
-        printf("Hi I am Process 3 and my pid is %d. My Parent's pid is %d\n", getpid(), getppid());
-        
+        printf("Process 3:pid is %d. Parent is 2: pid is %d\n", getpid(), getppid());
+         
         pid_t pid4 = fork();
         if(pid4 == 0){
-            printf("Hi I am Process 4 and my pid is %d. My Parent's pid is %d\n", getpid(), getppid());
+            printf("Process 4: pid is %d. Parent 3 is : pid is %d\n", getpid(), getppid());
             for(i = 0; i < size; i++){
                 
                 if(max < arrNum[i]){
