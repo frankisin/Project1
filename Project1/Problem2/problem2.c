@@ -62,9 +62,8 @@ char* BuildProcessTree(char nodename[MaxInput],int branch[MaxProcesses], char* c
 int main()
 {
     FILE *fp;
-    char fileaddress[100] = "D:\\Alex\\Projects\\Project1Q2\\input.txt";
     printf("Enter the address of the input file:\n");
-    //gets(fileaddress);
+    gets(fileaddress);
     fp = fopen(fileaddress, "r");
 
     if (fp== NULL){
