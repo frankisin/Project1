@@ -3,14 +3,16 @@ CC = gcc
 CFLAGS = -Wall -g 
 LDFLAGS = -lpthread
 
-OBJS = problem0.o 
+OBJS = problem1.o
 
 all: project
 
 project: $(OBJS)
 
-problem0.o: problem0.c
-	$(CC) problem0.c -o p0
+
+problem1.o: problem1.c
+	$(CC) problem1.c -o p1
+
 clean:
 	rm -f *~ *.o project 
 	
