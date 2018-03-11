@@ -44,9 +44,10 @@ void print_tree(struct tree_node *root){
 	_print_tree(root,0);
 }
 
-void genTreeExample()
+void Tree()
 {	int status,status1,status2,status3;
-	pid_t l,r,s,q;
+	pid_t l,r;
+	int a,b,c,d = 0;
 	
 	struct tree_node tree = {0};
 	struct tree_node treeB= {0};
@@ -69,93 +70,69 @@ void genTreeExample()
 	treeD.nr_children = 0;
 	strcpy(treeD.name,"D:");
 	treeD.children = NULL;
-	
-	//print_tree(&tree);
 
-	//printf("A:\n");
-	int counter = 1;
-	l = fork();
+	int p1[2];
+    	pipe(p1);
+        l = fork();
+    	if (l == 0){
+        	close(p1[0]);
+		printf("Child Process start \n");
+        	b = rand() % 15;
+        	printf("Process %s with pid: %d and parent pid %d\n",treeB.name, getpid(), getppid());
+        	write(p1[1], &b, sizeof(b));
+        	close(p1[1]);
+        	exit(0);
+        
+           	}else {
+		printf("Wait for child process \n");
+        	waitpid(l, &status, status);
+        	close(p1[1]);
+        	read(p1[0], &b, sizeof(b));
+        	a = rand() % 20;
+        	printf("Process %s with pid: %d and is the parent\n",tree.name, getpid());
+        	close(p1[0]);
+        
+    		}
+    
+    	int p2[2];
+    	pipe(p2);
+    
+    r = fork();
+    if (r == 0)
+    {
+        close(p2[0]);
 
-	if(l == 0){
-		 q = fork();
-			if(q == 0){
-				sleep(1);
-				kill(getpid(),SIGINT);
-			}else{
-				waitpid(q,&status1,0);
-				sleep(1);
-				printf("%s status = %d\n",treeB.name,status1);
-				s = fork();
-				if(s==0){
-				sleep(1);
-				kill(getpid(),SIGALRM);
-				}else{
-					waitpid(s,&status3,0);
-					sleep(1);
-					printf("%s status = %d\n",treeD.name,status3);
-				}
-
-				kill(getpid(),SIGPIPE);
-			}
-	}else{
-		waitpid(l,&status,0);
-		printf("%s status = %d\n",tree.name,status);
-		pid_t r = fork();
-		if(r==0){
-			sleep(1);
-			kill(getpid(),SIGALRM);
-		}
-
-		//waitpid(l,&status,0);
-		//printf("B: status = %d\n",status1);
-		waitpid(r,&status2,0);
-		printf("%s status = %d\n",treeC.name,status2);
+        d = rand() % 15;
+	printf("Second child process start\n");
+        printf("Process %s with pid: %d and parent pid %d\n",treeD.name,getpid(), getppid());
+        write(p2[1], &d, sizeof(d));
+        close(p2[1]);
+        exit(0);
+   
+    }
+    else {
+	printf("Waiting for termination of second child process\n");
+        waitpid(r, &status, status);
+        close(p2[1]);
+        read(p2[0], &d, sizeof(d));
+        c = rand() % 20;
+        printf("Process %s with pid: %d and parent pid %d\n", treeC.name, getpid(), getppid());
+        close(p2[0]);
 	}
+
+	printf("Termination codes for processes:\n");
+        printf("A = %d, B = %d, C = %d, D = %d\n", a,b,c,d);
+
+
 }
 
-void genTree(int counter)
-{
-	int status,status1,status2;
-	pid_t l;
-	if(counter<0)
-	{
-	kill(getpid(),SIGPIPE);
-	}
-	l = fork();
-
-	if(l == 0)
-		{			
-			sleep(1);	
-			genTree(counter-=2);
-			kill(getpid(),SIGINT);
-		}
-	else
-	{
-		
-				pid_t r = fork();
-				if(r==0)
-				{
-					sleep(1);
-					genTree(counter-=2);
-					kill(getpid(),SIGKILL);
-				}
-					waitpid(r,&status2,0);
-		printf("%d->%d: status = %d\n",getpid(),r,WTERMSIG(status2));
-
-		waitpid(l,&status,0);
-		printf("%d->%d: status = %d\n",getpid(),l,status);
-	}
-}
 
 int main(int argc, char const *argv[]){
 
-printf("The following shows a tree: \n");
-
-	if((argv[1])!=NULL){
-		genTree(atoi(argv[1]));
-	}else{
-		genTreeExample();
-	}
+printf("The following shows a process tree: \n");
+    printf("The root is: %d\n", getpid());
+    Tree();
+	
 	return 0;
 }
 
