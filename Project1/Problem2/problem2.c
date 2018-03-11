@@ -10,31 +10,52 @@
 #define MaxInput 500
 #define MaxProcesses 20
 
-char* BuildProcessTree(char nodename[MaxInput],int branch[MaxProcesses], char* childname[MaxInput][MaxProcesses], int depth){
+char* BuildProcessTree(char nodename[MaxInput],int branch[MaxProcesses], char* childname[MaxInput][MaxProcesses],int node_loc){
     char ProcessTree[MaxInput*MaxProcesses];
-	pid_t pids[MaxProcesses];
-	for(int i=0; i<branch; i++){
-        pids[i] = fork();
+    char HoldPass[MaxInput*MaxProcesses];
+    strcat(ProcessTree, nodename[0]);
+    strcat(ProcessTree, "\n");
+    //pipe values
+	pid_t pid;
+	int status;
+	int fd[2];
+	pipe(fd);
 
-        if(pids[i]==-1){
-            //forking failed
-            printf("fork failed - %d - %s\n", errno, strerror(errno));
-            exit(-1);
+	if(branch[node_loc]>0){
+        for(int i=0; i<branch[node_loc]; i++){
+
+            strcat(ProcessTree, childname[node_loc]);
+            pid = fork();
+            if(pid==-1){
+                //forking failed
+                printf("fork failed - %d - %s\n", errno, strerror(errno));
+                exit(-1);
+            }
+            else if(pid==0)
+            {
+                //child process
+                dup2(fd[1],1);
+                strcat(ProcessTree, BuildProcessTree(nodename, branch, childname, node_loc + branch - i));
+                write(fd[1],ProcessTree,MaxProcesses*MaxInput);
+                exit(0);
+            }
+            }
         }
-        else if(pids[i]==0)
+
+    if(pid!=0){
+        while ((pid = wait(&status)) != -1)
         {
-            //child process
-            BuildProcessTree(nodename, branch, childname, depth + 1);
-            exit(0);
+            fprintf(stderr, "process %d exits with %d\n", pid, WEXITSTATUS(status));
         }
-        else{
-            //parent process
-            
-            wait();
-        }
-	}
+        dup2(fd[0],0);
+        read(fd[0],HoldPass,MaxInput*MaxProcesses);
+    }
+    strcat(ProcessTree, nodename[node_loc]);
+    strcat(ProcessTree, "\n");
 	return ProcessTree;
 }
+
+
 
 
 
