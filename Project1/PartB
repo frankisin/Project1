@@ -1,0 +1,8 @@
+Hi I'm process 2: my pid is 3640 
+My Parent is process 1: pid is 3638
+Sum = 1015
+Time Elapsed = -0.002278
+Hi I'm Process 1: my pid is 3638
+max = 320
+min = -10
+Time Elapsed = 0.000412

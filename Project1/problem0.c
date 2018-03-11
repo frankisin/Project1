@@ -2,7 +2,8 @@
 
 Problem 0 
 author-: Alejandro Aguilar 
-Program takes in an input take file filled with numbers
+Program takes in an input file filled with numbers calculates the min,max and sum
+and output results to a file
 
 */
 
@@ -27,22 +28,22 @@ int max,min,sum;
 
 void main(int argc, char *argv[]){
 
-	printf("Enter character for option:\n A.(single process)\n B.(DFS)\n C.(multiple processes)\n");
+	printf("Enter character for option:\n A.(Single process)\n B.(Two processes)\n C.(Multiple processes)\n");
 	char input;
 	scanf("%s",&input);
 
 	if(input == 'A' || input == 'a'){
-		printf("A:\n");
+		printf("A: PartA\n");
 		programA();
 
 		printf("\n");
 		}else if(input == 'B' || input == 'b'){
-			printf("B:\n");
+			printf("B: PartB\n");
 			programB();
 			printf("\n");
 
 		}else if(input == 'C' || input == 'c'){
-			printf("C:\n");
+			printf("C: PartC\n");
 			programC();
 		}else{
 			printf("Invalid input!\n");
@@ -51,7 +52,8 @@ void main(int argc, char *argv[]){
 }
 
 void programA(){
-     min,max,sum=0;
+	min,max,sum=0;
+	clock_t start = clock();
 
 	printf("Enter file name including, example 'file.txt' \n");
 	char file;
@@ -102,16 +104,22 @@ void programA(){
         }
     }
     
+    FILE *writeOut = fopen("PartA", "w");
     printf("\n");
-    printf("max=%d\n", max);
-    printf("min=%d\n", min);
-    printf("sum=%d\n", sum);
+    printf("Results are printed in file 'PartA.txt'\n");
+
+    fprintf(writeOut, "Max = %d\n", max);  
+    fprintf(writeOut, "Min = %d\n", min);
+    fprintf(writeOut, "Sum = %d\n", sum);
+    fprintf(writeOut, "Time Elapsed = %f\n", (((double)clock()-start) / CLOCKS_PER_SEC));
+    fclose(writeOut);
     fclose (fp);
     
 }
 
 void programB(){
     min,max,sum=0;
+    clock_t start = clock();
     int i;
      
     printf("Enter file name including, example 'file.txt' \n");
@@ -119,6 +127,7 @@ void programB(){
     scanf("%s",&file);
 
     FILE *fp = fopen(&file, "r");
+    FILE *writeOut = fopen("PartB", "w");
     
     int size = 1;
     int ch = 0;
@@ -145,21 +154,16 @@ void programB(){
         fscanf(fp, "%d", &arrNum[i]);
     }
     
-    if(size == 1){
-        printf("Max = %d\n", arrNum[0]);
-        printf("Min = %d\n", arrNum[0]);
-        printf("Sum = %d\n", arrNum[0]);
-    }
-    
+    printf("Results are printed in file 'PartB'\n");
     pid_t pid2 = fork();
     if(pid2 == 0){
         for(i = 0; i < size; i++){
             sum += arrNum[i];
         }
-        printf("Process 2: pid is %d \nParent: pid is %d\n",getpid(),getppid());
+        fprintf(writeOut, "Hi I'm process 2: my pid is %d \nMy Parent is process 1: pid is %d\n",getpid(),getppid());  
         int status;
         waitpid(pid2, &status, 0);
-        printf("sum=%d\n", sum);
+    	fprintf(writeOut, "Sum = %d\n", sum);
         
     }
     else if (pid2 > 0){
@@ -181,13 +185,14 @@ void programB(){
                 min = arrNum[i];
             }
         }
-        printf("Process 1(parent): pid is %d\n",getpid());
+ 	fprintf(writeOut, "Hi I'm Process 1: my pid is %d\n",getpid());  
         int status;
         waitpid(pid2, &status, 0);
-        printf("max=%d\n", max);
-        printf("min=%d\n", min);
-    }
-    
+    	fprintf(writeOut, "max = %d\n", max);
+    	fprintf(writeOut, "min = %d\n", min);
+    	}
+    fprintf(writeOut, "Time Elapsed = %f\n", (((double)clock()-start) / CLOCKS_PER_SEC));
+    fclose(writeOut);
     fclose (fp);
 
 }
@@ -195,6 +200,7 @@ void programB(){
 
 void programC(){
     min, max, sum=0;
+    clock_t start = clock();
     int i;
     
     printf("Enter file name including, example 'file.txt' \n");
@@ -202,6 +208,7 @@ void programC(){
 	scanf("%s",&file);
 
     FILE *fp = fopen(&file, "r");
+    FILE *writeOut = fopen("PartC", "w");
     
     int size = 1;
     int ch = 0;
@@ -228,42 +235,34 @@ void programC(){
         fscanf(fp, "%d", &arrNum[i]);
     }
     
-    if(size == 1){
-        printf("Max = %d\n", arrNum[0]);
-        printf("Min = %d\n", arrNum[0]);
-        printf("Sum = %d\n", arrNum[0]);
-
-    }
     
     int fd1[2];
     pipe(fd1);
-    
+    printf("Results are printed in file 'PartC.txt'\n");
     pid_t pid2 = fork();
     if(pid2 == 0){
         close(fd1[0]);
-
         for(i = 0; i < size; i++){
             sum += arrNum[i];
         }
-        printf("Process 2:pid is %d. Parent is 1: pid is %d\n",getpid(),getppid());
-        //printf("sum=%d\n", sum);
+fprintf(writeOut, "Hi I'm process 2: my pid is %d \nMy Parent is process 1: pid is %d\n",getpid(),getppid()); 
         write(fd1[1], &sum, sizeof(sum));
         close(fd1[1]);
         exit(0);
     }
     else{
-        printf("Process 1:pid is %d. I am the Parent.\n", getpid());
+fprintf(writeOut, "Hi I'm process 1: my pid is %d and I am the parent\n",getpid()); 
         close(fd1[1]);
         read(fd1[0], &sum, sizeof(sum));
         int status;
         waitpid(pid2, &status, 0);
         close(fd1[0]);
-
     }
 
     
     pid_t pid3 = fork();
     if (pid3 == 0){
+fprintf(writeOut, "Hi I'm process 3: my pid is %d \nMy Parent is process 2: pid is %d\n",getpid(),getppid()); 
         if(arrNum[0] > arrNum[1]){
             max = arrNum[0];
             min = arrNum[1];
@@ -271,18 +270,16 @@ void programC(){
             max = arrNum[1];
             min = arrNum[0];
         }
-        printf("Process 3:pid is %d. Parent is 2: pid is %d\n", getpid(), getppid());
-         
         pid_t pid4 = fork();
         if(pid4 == 0){
-            printf("Process 4: pid is %d. Parent 3 is : pid is %d\n", getpid(), getppid());
+fprintf(writeOut, "Hi I'm process 4: my pid is %d \nMy Parent is process 3: pid is %d\n",getpid(),getppid()); 
             for(i = 0; i < size; i++){
                 
                 if(max < arrNum[i]){
                     max = arrNum[i];
                 }
             }
-            printf("Max=%d\n", max);
+    	    fprintf(writeOut, "Max = %d\n", max);
             exit(0);
             
         }else{
@@ -294,7 +291,7 @@ void programC(){
             }
             int status;
             waitpid(pid4, &status, 0);
-            printf("Min=%d\n", min);
+    	    fprintf(writeOut, "Min = %d\n", min);
         }
         exit(0);
     }
@@ -303,8 +300,10 @@ void programC(){
         int status1;
         waitpid(pid3, &status1, 0);
     }
-    printf("Sum=%d\n", sum);
-    
+    fprintf(writeOut, "Sum = %d\n", sum);
+
+    fprintf(writeOut, "Time Elapsed = %f\n", (((double)clock()-start) / CLOCKS_PER_SEC));
+    fclose(writeOut);    
     fclose (fp);
     
 

@@ -1,0 +1,15 @@
+Hi I'm process 2: my pid is 4178 
+My Parent is process 1: pid is 4177
+Hi I'm process 1: my pid is 4177 and I am the parent
+Hi I'm process 3: my pid is 4179 
+My Parent is process 2: pid is 4177
+Hi I'm process 4: my pid is 4180 
+My Parent is process 3: pid is 4179
+Max = 320
+Hi I'm process 1: my pid is 4177 and I am the parent
+Hi I'm process 3: my pid is 4179 
+My Parent is process 2: pid is 4177
+Min = -10
+Hi I'm process 1: my pid is 4177 and I am the parent
+Sum = 1015
+Time Elapsed = 0.000750
