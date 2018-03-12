@@ -13,17 +13,17 @@
 char* BuildProcessTree(char nodename[MaxInput],int branch[MaxProcesses], char* childname[MaxInput][MaxProcesses],int node_loc){
     char ProcessTree[MaxInput*MaxProcesses];
     char HoldPass[MaxInput*MaxProcesses];
-    strcat(ProcessTree, nodename[0]);
+    char PassNodeName[2]={nodename[0],'\0'};
+    strcat(ProcessTree, PassNodeName);
     strcat(ProcessTree, "\n");
     //pipe values
 	pid_t pid;
 	int status;
 	int fd[2];
 	pipe(fd);
-
+    int n;
 	if(branch[node_loc]>0){
         for(int i=0; i<branch[node_loc]; i++){
-
             strcat(ProcessTree, childname[node_loc]);
             pid = fork();
             if(pid==-1){
@@ -34,27 +34,34 @@ char* BuildProcessTree(char nodename[MaxInput],int branch[MaxProcesses], char* c
             else if(pid==0)
             {
                 //child process
-                dup2(fd[1],1);
-                strcat(ProcessTree, BuildProcessTree(nodename, branch, childname, node_loc + branch - i));
+                printf("Child Running Amock");
+                strcat(ProcessTree, BuildProcessTree(nodename, branch, childname, node_loc + 1));
                 write(fd[1],ProcessTree,MaxProcesses*MaxInput);
+                close(fd[1]);
                 exit(0);
+            }
+        else {
+            while ((pid = wait(&status)) != -1){
+                system("read -p 'Press Enter to continue...' var");
+                if((n= read(fd[0],HoldPass,MaxProcesses*MaxInput))>=0){
+                    printf("Pipe Passed: %s\n", HoldPass);
+                    close(fd[0]);
+                    fprintf(stderr, "process %d exits with %d\n", pid, WEXITSTATUS(status));
+                }
+
+            printf("Pipe Passed: %s\n", HoldPass);
+            close(fd[0]);
             }
             }
         }
 
-    if(pid!=0){
-        while ((pid = wait(&status)) != -1)
-        {
-            fprintf(stderr, "process %d exits with %d\n", pid, WEXITSTATUS(status));
-        }
-        dup2(fd[0],0);
-        read(fd[0],HoldPass,MaxInput*MaxProcesses);
-    }
+
+
+}
     strcat(ProcessTree, nodename[node_loc]);
     strcat(ProcessTree, "\n");
 	return ProcessTree;
 }
-
 
 
 
